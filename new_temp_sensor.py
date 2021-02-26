@@ -5,6 +5,7 @@ import signal # for CTRL+C handling
 import sys    # for CTRL+C handling
 import DHT22 # temperature sensor
 
+print("Program started")
 
 # Pigpio documentation - http://abyz.me.uk/rpi/pigpio/python.html
 # To start pigpio : sudo pigpiod
@@ -72,19 +73,21 @@ while True:
     temp = sensor.temperature()
     temp = round(temp, 1) # round to 1 decimal place
     print(temp)
+    currentHour = time.localtime().tm_hour
+    isNighttime = (currentHour >= 22 or currentHour <= 6)
+    isDaytime = not isNighttime
     # ===== Relay =====
-    if temp <= ON_TEMPERATURE:
+    if temp <= ON_TEMPERATURE and isNighttime:
         pi.write(14, GPIO_HIGH) # relay on
         relay_status = "ON" # for log file
-    if temp >= OFF_TEMPERATURE:
+    if temp >= OFF_TEMPERATURE or isDaytime:
         pi.write(14, GPIO_LOW) # relay off
         relay_status = "OFF" # for log file
     # NB if temp is between ON_TEMPERATURE and OFF_TEMPERATURE
     #    then the relay stays in its current position
     #    to wait for new temperature to be reached
     # ===== LEDs =====
-    currentHour = time.localtime().tm_hour
-    brightness = 8 if currentHour >= 22 or currentHour <= 6 else 255 # dim at night
+    brightness = 8 if isNighttime else 255 # dim at night
     if temp > 24.0: # 24 and above = hot
         switch_on_led(5, brightness) # red LED on
     elif temp > 21.0: # 21-24 = getting hot
