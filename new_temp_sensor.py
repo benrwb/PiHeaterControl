@@ -4,6 +4,7 @@ from datetime import datetime
 import signal # for CTRL+C handling
 import sys    # for CTRL+C handling
 import DHT22 # temperature sensor
+             # from https://github.com/joan2937/pigpio/blob/master/EXAMPLES/Python/DHT22_AM2302_SENSOR/DHT22.py
 
 print("Program started")
 
