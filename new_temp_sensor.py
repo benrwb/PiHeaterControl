@@ -14,8 +14,12 @@ GPIO_LOW = 0
 pi = pigpio.pi()
 
 
-# Set up temperature sensor
-sensor = DHT22.sensor(pi, 22) # on GPIO port 22
+# Set up temperature sensor on GPIO port 22
+sensor = DHT22.sensor(pi, 22, LED=27) 
+# LED on GPIO 27 blinks every time a reading is taken
+# If the sensor becomes disconnected, the LED will stay lit
+# to indicate an error state.
+
 
 
 def signal_handler(sig, frame):
