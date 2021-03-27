@@ -8,7 +8,7 @@
                   4     14  Relay
                  -ve    15
                   17    18
-                  27   -ve
+     3mm Red LED  27   -ve  3mm Red LED
     Temp. sensor  22    23
     Temp. sensor  3.3v  24
                   10   -ve  Temp.sensor
