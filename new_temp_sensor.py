@@ -26,6 +26,7 @@ sensor = DHT22.sensor(pi, 22, LED=27)
 def signal_handler(sig, frame):
     print('You pressed Ctrl+C!')
     # Switch everything off
+    pi.write(4, GPIO_LOW) # red LED #2 off
     pi.write(5, GPIO_LOW) # red LED off
     pi.write(6, GPIO_LOW) # yellow LED off
     pi.write(7, GPIO_LOW) # white LED off
@@ -48,18 +49,22 @@ def write_log_file(temp, relay_status):
 
 def switch_on_led(number, brightness):
     # number: GPIO port number
+    #         Note that number 4 will turn on BOTH red LEDs (pins 4 and 5)
+    #         All other numbers will only turn on a single LED.
     # brightness: a number between 0 and 255
     # Note: Most tutorials recommend GPIO.PWM,
     #       but that uses software PWM which causes
     #       visible (uneven) flickering.
     #       pigpio PWM is much better.
-    # see also https://raspberrypi.stackexchange.com/a/40256 
+    # see also https://raspberrypi.stackexchange.com/a/40256
     #      and https://raspberrypi.stackexchange.com/a/37945
-    pi.set_PWM_dutycycle(5, 0 if number != 5 else brightness) # red LED
-    pi.set_PWM_dutycycle(6, 0 if number != 6 else brightness) # yellow LED
-    pi.set_PWM_dutycycle(7, 0 if number != 7 else brightness) # white LED 
-    pi.set_PWM_dutycycle(8, 0 if number != 8 else brightness) # green LED
-    pi.set_PWM_dutycycle(9, 0 if number != 9 else brightness) # blue LED
+
+    pi.set_PWM_dutycycle(4, brightness if number == 4 else 0) # red LED #2
+    pi.set_PWM_dutycycle(5, brightness if number <= 5 else 0) # red LED
+    pi.set_PWM_dutycycle(6, brightness if number == 6 else 0) # yellow LED
+    pi.set_PWM_dutycycle(7, brightness if number == 7 else 0) # white LED 
+    pi.set_PWM_dutycycle(8, brightness if number == 8 else 0) # green LED
+    pi.set_PWM_dutycycle(9, brightness if number == 9 else 0) # blue LED
 
 
 
@@ -93,9 +98,11 @@ while True:
     #    to wait for new temperature to be reached
     # ===== LEDs =====
     brightness = 8 if isNighttime else 255 # dim at night
-    if temp > 24.0: # 24 and above = hot
+    if temp > 27.0: # 27 and above = heatwave
+        switch_on_led(4, brightness) # both red LEDs on
+    elif temp > 24.0: # 24 and above = hot
         switch_on_led(5, brightness) # red LED on
-    elif temp > 21.0: # 21-24 = getting hot
+    elif temp > 21.0: # 21-24 = warm
         switch_on_led(6, brightness) # yellow LED on
     elif temp > 18.0: # 18-21 = comfortable
         switch_on_led(7, brightness) # white LED on
