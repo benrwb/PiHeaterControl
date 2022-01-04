@@ -26,12 +26,7 @@ sensor = DHT22.sensor(pi, 22, LED=27)
 def signal_handler(sig, frame):
     print('You pressed Ctrl+C!')
     # Switch everything off
-    pi.write(4, GPIO_LOW) # red LED #2 off
-    pi.write(5, GPIO_LOW) # red LED off
-    pi.write(6, GPIO_LOW) # yellow LED off
-    pi.write(7, GPIO_LOW) # white LED off
-    pi.write(8, GPIO_LOW) # green LED off
-    pi.write(9, GPIO_LOW) # blue LED off
+    switch_on_led(0, 0) # turn off all LEDs
     pi.write(14, GPIO_LOW) # relay off
     sensor.cancel() # temperature sensor off
     pi.stop() # release pigpio resources
@@ -58,7 +53,7 @@ def switch_on_led(number, brightness):
     #       pigpio PWM is much better.
     # see also https://raspberrypi.stackexchange.com/a/40256
     #      and https://raspberrypi.stackexchange.com/a/37945
-
+    
     pi.set_PWM_dutycycle(4, brightness if number == 4 else 0) # red LED #2
     pi.set_PWM_dutycycle(5, brightness if number <= 5 else 0) # red LED
     pi.set_PWM_dutycycle(6, brightness if number == 6 else 0) # yellow LED
@@ -75,8 +70,8 @@ iteration_number = -1 # -1 to write log file on *second*, not first, iteration
 pi.write(14, GPIO_LOW) # relay off
 relay_status = "OFF"
 last_relay_status = "OFF"
-ON_TEMPERATURE = 16.5
-OFF_TEMPERATURE = 17.0
+ON_TEMPERATURE = 16.0
+OFF_TEMPERATURE = 16.5
 while True:
     sensor.trigger() # take temperature reading
     time.sleep(0.2) # wait for data to populate (otherwise first reading comes back as -999!)
@@ -106,10 +101,16 @@ while True:
         switch_on_led(6, brightness) # yellow LED on
     elif temp > 18.0: # 18-21 = comfortable
         switch_on_led(7, brightness) # white LED on
-    elif relay_status == "OFF": # 18 or below, heater NOT on
+    elif temp >= OFF_TEMPERATURE: # heater NOT on
         switch_on_led(8, brightness) # green LED on
-    elif relay_status == "ON": # heater is on
+    elif temp <= ON_TEMPERATURE: # heater is on
         switch_on_led(9, brightness) # blue LED on
+    elif iteration_number == 0:
+        # This is to handle the situation where, when the
+        # script is started, the initial temperature is *between*
+        # ON_TEMPERATURE and OFF_TEMPERATURE.
+        # (If this wasn't done then no LEDs would be lit!)
+        switch_on_led(8, brightness) # green LED on
     # ===== Log file =====
     if iteration_number % 400 == 0 or relay_status != last_relay_status:
         # write to the log file every 20 minutes (approx 400 iterations)
@@ -118,5 +119,4 @@ while True:
         last_relay_status = relay_status
     time.sleep(3) # wait 3 seconds (any less will hang the DHT22).
     iteration_number += 1
-
 
