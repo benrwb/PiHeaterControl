@@ -70,8 +70,9 @@ iteration_number = -1 # -1 to write log file on *second*, not first, iteration
 pi.write(14, GPIO_LOW) # relay off
 relay_status = "OFF"
 last_relay_status = "OFF"
-ON_TEMPERATURE = 16.0
-OFF_TEMPERATURE = 16.5
+green_blue = "GREEN"
+ON_TEMPERATURE = 15.5
+OFF_TEMPERATURE = 16.0
 while True:
     sensor.trigger() # take temperature reading
     time.sleep(0.2) # wait for data to populate (otherwise first reading comes back as -999!)
@@ -91,6 +92,12 @@ while True:
     # NB if temp is between ON_TEMPERATURE and OFF_TEMPERATURE
     #    then the relay stays in its current position
     #    to wait for new temperature to be reached
+    # ===== Green/Blue LED =====
+    # (same as relay except doesn't use isDaytime/isNighttime)
+    if temp <= ON_TEMPERATURE:
+        green_blue = "BLUE" # to indicate that it's cold enough for the heater to come on
+    if temp >= OFF_TEMPERATURE:
+        green_blue = "GREEN"
     # ===== LEDs =====
     brightness = 8 if isNighttime else 255 # dim at night
     if temp > 27.0: # 27 and above = heatwave
@@ -101,16 +108,10 @@ while True:
         switch_on_led(6, brightness) # yellow LED on
     elif temp > 18.0: # 18-21 = comfortable
         switch_on_led(7, brightness) # white LED on
-    elif temp >= OFF_TEMPERATURE: # heater NOT on
+    elif green_blue == "GREEN": # temp <= 18
         switch_on_led(8, brightness) # green LED on
-    elif temp <= ON_TEMPERATURE: # heater is on
+    elif green_blue == "BLUE": # cold enough for heater to be on
         switch_on_led(9, brightness) # blue LED on
-    elif iteration_number == 0:
-        # This is to handle the situation where, when the
-        # script is started, the initial temperature is *between*
-        # ON_TEMPERATURE and OFF_TEMPERATURE.
-        # (If this wasn't done then no LEDs would be lit!)
-        switch_on_led(8, brightness) # green LED on
     # ===== Log file =====
     if iteration_number % 400 == 0 or relay_status != last_relay_status:
         # write to the log file every 20 minutes (approx 400 iterations)
@@ -119,4 +120,5 @@ while True:
         last_relay_status = relay_status
     time.sleep(3) # wait 3 seconds (any less will hang the DHT22).
     iteration_number += 1
+
 
