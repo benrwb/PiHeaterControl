@@ -70,6 +70,7 @@ iteration_number = -1 # -1 to write log file on *second*, not first, iteration
 pi.write(14, GPIO_LOW) # relay off
 relay_status = "OFF"
 last_relay_status = "OFF"
+switch_on_led(0, 0) # turn off all LEDs
 green_blue = "GREEN"
 ON_TEMPERATURE = 15.5
 OFF_TEMPERATURE = 16.0
