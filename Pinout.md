@@ -5,7 +5,7 @@
                   3.3v +5v  Relay
                   2    +5v 
                   3    -ve  Relay
-                  4     14  Relay
+      Red LED #2  4     14  Relay
                  -ve    15
                   17    18
      3mm Red LED  27   -ve  3mm Red LED
@@ -16,7 +16,7 @@
                   11     8  Green LED
                  -ve     7  White LED
                  
-         Red LED  5    -ve
+      Red LED #1  5    -ve
       Yellow LED  6     12
                   13   -ve
                   19    16
