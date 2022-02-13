@@ -3,12 +3,12 @@
 
 ### Starting the script automatically
 
-`sudo nano /etc/xdg/lxsession/LXDE-pi/autostart`
+1.  `sudo nano /etc/xdg/lxsession/LXDE-pi/autostart`
 
-Add
+    Add:
+    
+    `@lxterminal -e /usr/bin/python /home/pi/new_temp_sensor.py`
 
-`@lxterminal -e /usr/bin/python /home/pi/new_temp_sensor.py`
+2. Configure pigpio to start on boot:
 
-Also need to configure pigpio to start on boot:
-
-`sudo systemctl enable pigpiod`
+    `sudo systemctl enable pigpiod`
