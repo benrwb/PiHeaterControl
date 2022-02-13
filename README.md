@@ -11,6 +11,6 @@ Add
 
 ---
 
-Also requires pigpiod to be running
+Also need to configure pigpio to start on boot:
 
 `sudo systemctl enable pigpiod`
